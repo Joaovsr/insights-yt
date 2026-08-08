@@ -1,4 +1,4 @@
-import type { AnalysisResult } from "../lib/analysis";
+import type { AnalysisResult } from "../lib/analysis.js";
 
 export const analysisFixture: AnalysisResult = {
   generatedAt: "2026-08-08T15:00:00.000Z",

@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { analysisResultSchema, type AnalysisResult } from "../src/lib/analysis.js";
 import { cleanYouTubeText } from "./text.js";
+import { normalizeCodexPayload } from "./normalize.js";
 
 const serverDirectory = dirname(fileURLToPath(import.meta.url));
 const schemaPath = resolve(serverDirectory, "analysis-schema.json");
@@ -103,7 +104,7 @@ export async function analyzeWithCodex(videoId: string): Promise<AnalysisResult>
     throw new CodexRunError("O Codex retornou uma resposta inválida.");
   }
 
-  const validation = analysisResultSchema.safeParse(parsed);
+  const validation = analysisResultSchema.safeParse(normalizeCodexPayload(parsed));
   if (!validation.success) {
     const details = validation.error.issues
       .slice(0, 4)

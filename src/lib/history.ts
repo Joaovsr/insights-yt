@@ -17,9 +17,21 @@ const searchHistorySchema = z.array(searchHistoryItemSchema).max(MAX_HISTORY_ITE
 
 export type SearchHistoryItem = z.infer<typeof searchHistoryItemSchema>;
 
-export function readSearchHistory(storage: Storage = window.localStorage): SearchHistoryItem[] {
+function resolveStorage(storage?: Storage): Storage | null {
+  if (storage) return storage;
+  if (typeof window === "undefined") return null;
   try {
-    const raw = storage.getItem(HISTORY_KEY);
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+export function readSearchHistory(storage?: Storage): SearchHistoryItem[] {
+  const target = resolveStorage(storage);
+  if (!target) return [];
+  try {
+    const raw = target.getItem(HISTORY_KEY);
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     const validation = searchHistorySchema.safeParse(parsed);
@@ -32,8 +44,9 @@ export function readSearchHistory(storage: Storage = window.localStorage): Searc
 export function rememberSearch(
   url: string,
   result: AnalysisResult,
-  storage: Storage = window.localStorage,
+  storage?: Storage,
 ): SearchHistoryItem[] {
+  const target = resolveStorage(storage);
   const video = result.video;
   const item: SearchHistoryItem = {
     id: `${video.videoId}:${result.generatedAt}`,
@@ -43,19 +56,23 @@ export function rememberSearch(
     searchedAt: new Date().toISOString(),
     result,
   };
-  const next = [item, ...readSearchHistory(storage).filter((entry) => entry.result.video.videoId !== video.videoId)]
+  const persisted = target ? readSearchHistory(target) : [];
+  const next = [item, ...persisted.filter((entry) => entry.result.video.videoId !== video.videoId)]
     .slice(0, MAX_HISTORY_ITEMS);
+  if (!target) return next;
   try {
-    storage.setItem(HISTORY_KEY, JSON.stringify(next));
+    target.setItem(HISTORY_KEY, JSON.stringify(next));
   } catch {
     // Keep the current session usable when localStorage is unavailable or full.
   }
   return next;
 }
 
-export function clearSearchHistory(storage: Storage = window.localStorage): void {
+export function clearSearchHistory(storage?: Storage): void {
+  const target = resolveStorage(storage);
+  if (!target) return;
   try {
-    storage.removeItem(HISTORY_KEY);
+    target.removeItem(HISTORY_KEY);
   } catch {
     // Clearing persisted history should not break the UI.
   }

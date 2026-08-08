@@ -46,6 +46,7 @@ describe("search history", () => {
     expect(readSearchHistory(storage)).toEqual([]);
     expect(() => rememberSearch("https://youtu.be/_RvNczunfsQ", analysisFixture, storage)).not.toThrow();
     expect(() => clearSearchHistory(storage)).not.toThrow();
+    expect(readSearchHistory()).toEqual([]);
   });
 
   it("rejects persisted entries with invalid dates", () => {

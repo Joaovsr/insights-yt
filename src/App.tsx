@@ -30,8 +30,8 @@ function formatDate(value: string) {
 
 export default function App() {
   const [history, setHistory] = useState<SearchHistoryItem[]>(() => readSearchHistory());
-  const [url, setUrl] = useState(() => readSearchHistory()[0]?.url ?? "");
-  const [result, setResult] = useState<AnalysisResult | null>(() => readSearchHistory()[0]?.result ?? null);
+  const [url, setUrl] = useState(() => history[0]?.url ?? "");
+  const [result, setResult] = useState<AnalysisResult | null>(() => history[0]?.result ?? null);
   const [selected, setSelected] = useState<GraphNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +96,7 @@ export default function App() {
         <div className="canvas-panel">
           <div className="canvas-heading">
             <div>
-              <h1>{result ? result.videos[0].title : "Mapa de comentários"}</h1>
+              <h1>{result ? result.video.title : "Mapa de comentários"}</h1>
               <p className="canvas-subtitle">
                 {result ? result.overview : "Envie um vídeo para visualizar os temas da conversa."}
               </p>

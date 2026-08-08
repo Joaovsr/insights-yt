@@ -3,7 +3,7 @@ import type { AnalysisResult } from "../lib/analysis";
 export const analysisFixture: AnalysisResult = {
   generatedAt: "2026-08-08T15:00:00.000Z",
   overview: "A audiência discute foco, constância e tolerância ao tédio.",
-  videos: [{
+  video: {
     videoId: "_RvNczunfsQ",
     url: "https://www.youtube.com/watch?v=_RvNczunfsQ",
     title: "Master boredom to get ahead",
@@ -26,6 +26,6 @@ export const analysisFixture: AnalysisResult = {
         likes: index,
       }],
     })),
-  }],
+  },
   takeaways: ["Persistência é o tema central.", "Distrações digitais aparecem com frequência."],
 };

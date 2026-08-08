@@ -25,6 +25,10 @@ describe("parseVideoRequest", () => {
 
   it("rejects arrays and malformed URLs", () => {
     expect(() => parseVideoRequest({ urls: ["https://youtu.be/_RvNczunfsQ"] })).toThrow();
+    expect(() => parseVideoRequest({
+      url: "https://youtu.be/_RvNczunfsQ",
+      urls: ["https://youtu.be/_RvNczunfsQ", "https://youtu.be/dQw4w9WgXcQ"],
+    })).toThrow();
     expect(() => parseVideoRequest({ url: "https://example.com/video" })).toThrow("URL do YouTube inválida");
   });
 });

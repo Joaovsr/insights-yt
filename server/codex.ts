@@ -114,18 +114,18 @@ export async function analyzeWithCodex(videoId: string): Promise<AnalysisResult>
   }
   const result = {
     ...validation.data,
-    videos: validation.data.videos.map((video) => ({
-      ...video,
-      tags: video.tags.map((tag) => ({
+    video: {
+      ...validation.data.video,
+      tags: validation.data.video.tags.map((tag) => ({
         ...tag,
         examples: tag.examples.map((example) => ({
           ...example,
           text: cleanYouTubeText(example.text),
         })),
       })),
-    })),
+    },
   } satisfies AnalysisResult;
-  if (result.videos[0].videoId !== videoId) {
+  if (result.video.videoId !== videoId) {
     throw new CodexRunError("A resposta do Codex não corresponde aos vídeos solicitados.");
   }
 

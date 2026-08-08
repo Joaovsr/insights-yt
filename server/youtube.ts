@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const requestSchema = z.object({
   url: z.string().trim().min(1),
-});
+}).strict();
 
 const videoIdSchema = z.string().regex(/^[A-Za-z0-9_-]{11}$/);
 

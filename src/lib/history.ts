@@ -9,7 +9,7 @@ const searchHistoryItemSchema = z.object({
   url: z.string().url(),
   title: z.string().min(1),
   channel: z.string().min(1),
-  searchedAt: z.string(),
+  searchedAt: z.string().refine((value) => !Number.isNaN(Date.parse(value)), "Data inválida."),
   result: analysisResultSchema,
 });
 
@@ -18,10 +18,9 @@ const searchHistorySchema = z.array(searchHistoryItemSchema).max(MAX_HISTORY_ITE
 export type SearchHistoryItem = z.infer<typeof searchHistoryItemSchema>;
 
 export function readSearchHistory(storage: Storage = window.localStorage): SearchHistoryItem[] {
-  const raw = storage.getItem(HISTORY_KEY);
-  if (!raw) return [];
-
   try {
+    const raw = storage.getItem(HISTORY_KEY);
+    if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     const validation = searchHistorySchema.safeParse(parsed);
     return validation.success ? validation.data : [];
@@ -35,7 +34,7 @@ export function rememberSearch(
   result: AnalysisResult,
   storage: Storage = window.localStorage,
 ): SearchHistoryItem[] {
-  const video = result.videos[0];
+  const video = result.video;
   const item: SearchHistoryItem = {
     id: `${video.videoId}:${result.generatedAt}`,
     url,
@@ -44,12 +43,20 @@ export function rememberSearch(
     searchedAt: new Date().toISOString(),
     result,
   };
-  const next = [item, ...readSearchHistory(storage).filter((entry) => entry.result.videos[0].videoId !== video.videoId)]
+  const next = [item, ...readSearchHistory(storage).filter((entry) => entry.result.video.videoId !== video.videoId)]
     .slice(0, MAX_HISTORY_ITEMS);
-  storage.setItem(HISTORY_KEY, JSON.stringify(next));
+  try {
+    storage.setItem(HISTORY_KEY, JSON.stringify(next));
+  } catch {
+    // Keep the current session usable when localStorage is unavailable or full.
+  }
   return next;
 }
 
 export function clearSearchHistory(storage: Storage = window.localStorage): void {
-  storage.removeItem(HISTORY_KEY);
+  try {
+    storage.removeItem(HISTORY_KEY);
+  } catch {
+    // Clearing persisted history should not break the UI.
+  }
 }

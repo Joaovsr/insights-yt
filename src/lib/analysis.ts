@@ -52,7 +52,7 @@ export const videoAnalysisSchema = z.object({
 export const analysisResultSchema = z.object({
   generatedAt: z.string().refine((value) => !Number.isNaN(Date.parse(value)), "Data ISO-8601 inválida."),
   overview: z.string().min(1).max(420),
-  videos: z.array(videoAnalysisSchema).length(1),
+  video: videoAnalysisSchema,
   takeaways: z.array(z.string().min(1).max(220)).min(2).max(6),
 });
 

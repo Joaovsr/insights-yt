@@ -2,7 +2,7 @@ import express from "express";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { ZodError } from "zod";
-import { analyzeWithCodex } from "./codex.js";
+import { analyzeWithCodex, CodexRunError } from "./codex.js";
 import { parseVideoRequest } from "./youtube.js";
 
 const app = express();
@@ -33,7 +33,8 @@ app.post("/api/analyze", async (request, response) => {
       : error instanceof Error
         ? error.message
         : "Falha inesperada ao analisar os vídeos.";
-    response.status(error instanceof ZodError ? 422 : 400).json({ error: message });
+    const status = error instanceof CodexRunError ? error.status : error instanceof ZodError ? 422 : 400;
+    response.status(status).json({ error: message });
   } finally {
     analysisInFlight = false;
   }

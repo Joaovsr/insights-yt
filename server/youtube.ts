@@ -9,8 +9,6 @@ const videoIdSchema = z.string().regex(/^[A-Za-z0-9_-]{11}$/);
 export function extractVideoId(value: string): string | null {
   const trimmed = value.trim();
 
-  if (videoIdSchema.safeParse(trimmed).success) return trimmed;
-
   let url: URL;
   try {
     url = new URL(trimmed);

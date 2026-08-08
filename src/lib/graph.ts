@@ -13,6 +13,7 @@ export type GraphNode = {
   eyebrow: string;
   description: string;
   meta: string[];
+  evidence?: string[];
 };
 
 export type GraphEdge = {
@@ -84,7 +85,8 @@ export function createInsightGraph(result: AnalysisResult): InsightGraph {
         label: tag.label,
         eyebrow: `Tag · ${sentimentLabel[tag.sentiment]}`,
         description: tag.description,
-        meta: [`${tag.commentCount} comentários`, tag.keywords.join(" · ")],
+      meta: [`${tag.commentCount} comentários`, tag.keywords.join(" · ")],
+      evidence: tag.examples.map((example) => `${example.author}: ${example.text}`),
       });
       edges.push({ id: `${videoNodeId}-${tagNodeId}`, from: videoNodeId, to: tagNodeId, color, strength: "strong" });
 
@@ -111,7 +113,8 @@ export function createInsightGraph(result: AnalysisResult): InsightGraph {
 
   result.sharedThemes.forEach((theme, index) => {
     const id = `shared:${index}`;
-    const position = { x: 570, y: 235 + index * 92 };
+    const interval = result.sharedThemes.length > 1 ? 390 / (result.sharedThemes.length - 1) : 0;
+    const position = { x: 570, y: 190 + index * interval };
     nodes.push({
       id,
       kind: "shared",
@@ -123,6 +126,7 @@ export function createInsightGraph(result: AnalysisResult): InsightGraph {
       eyebrow: "Tema compartilhado",
       description: theme.description,
       meta: ["Presente nos dois vídeos"],
+      evidence: theme.evidence.map((item) => `${item.author}: ${item.text}`),
     });
     theme.videoIds.forEach((videoId) => {
       edges.push({ id: `${id}-${videoId}`, from: id, to: `video:${videoId}`, color: "#f0c75e", strength: "soft" });

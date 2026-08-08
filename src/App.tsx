@@ -202,6 +202,12 @@ export default function App() {
               <div className="meta-chips">
                 {selected.meta.map((item) => <span key={item}>{item}</span>)}
               </div>
+              {selected.evidence && selected.evidence.length > 0 && (
+                <div className="evidence-list">
+                  <p className="kicker">EVIDÊNCIAS</p>
+                  {selected.evidence.slice(0, 3).map((item) => <blockquote key={item}>{item}</blockquote>)}
+                </div>
+              )}
             </section>
           ) : result ? (
             <section className="takeaways">

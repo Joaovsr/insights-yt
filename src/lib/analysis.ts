@@ -31,12 +31,26 @@ export const videoAnalysisSchema = z.object({
     positive: z.number().min(0).max(100),
     neutral: z.number().min(0).max(100),
     negative: z.number().min(0).max(100),
-  }),
+  }).refine(
+    (value) => Math.abs(value.positive + value.neutral + value.negative - 100) < 0.01,
+    "Os percentuais de sentimento devem totalizar 100.",
+  ),
   tags: z.array(tagSchema).min(4).max(10),
+}).superRefine((video, context) => {
+  if (video.url !== `https://www.youtube.com/watch?v=${video.videoId}`) {
+    context.addIssue({ code: "custom", path: ["url"], message: "A URL não corresponde ao videoId." });
+  }
+  if (video.thumbnail !== `https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`) {
+    context.addIssue({ code: "custom", path: ["thumbnail"], message: "A thumbnail não corresponde ao videoId." });
+  }
+  const tagIds = video.tags.map((tag) => tag.id);
+  if (new Set(tagIds).size !== tagIds.length) {
+    context.addIssue({ code: "custom", path: ["tags"], message: "IDs de tags devem ser únicos." });
+  }
 });
 
 export const analysisResultSchema = z.object({
-  generatedAt: z.string(),
+  generatedAt: z.string().refine((value) => !Number.isNaN(Date.parse(value)), "Data ISO-8601 inválida."),
   overview: z.string().min(1).max(420),
   videos: z.array(videoAnalysisSchema).min(1).max(2),
   sharedThemes: z.array(
@@ -44,9 +58,32 @@ export const analysisResultSchema = z.object({
       label: z.string().min(1).max(36),
       description: z.string().min(1).max(180),
       videoIds: z.array(z.string().regex(/^[\w-]{11}$/)).min(2).max(2),
+      evidence: z.array(z.object({
+        videoId: z.string().regex(/^[\w-]{11}$/),
+        author: z.string().min(1),
+        text: z.string().min(1).max(280),
+      })).min(2).max(4),
     }),
   ).max(8),
   takeaways: z.array(z.string().min(1).max(220)).min(2).max(6),
+}).superRefine((result, context) => {
+  const ids = result.videos.map((video) => video.videoId);
+  if (new Set(ids).size !== ids.length) {
+    context.addIssue({ code: "custom", path: ["videos"], message: "Vídeos devem ser únicos." });
+  }
+  if (ids.length === 1 && result.sharedThemes.length > 0) {
+    context.addIssue({ code: "custom", path: ["sharedThemes"], message: "Um vídeo não pode ter temas compartilhados." });
+  }
+  const expectedIds = [...ids].sort().join(",");
+  result.sharedThemes.forEach((theme, index) => {
+    if ([...new Set(theme.videoIds)].sort().join(",") !== expectedIds) {
+      context.addIssue({ code: "custom", path: ["sharedThemes", index, "videoIds"], message: "Tema deve referenciar os dois vídeos analisados." });
+    }
+    const evidenceIds = new Set(theme.evidence.map((item) => item.videoId));
+    if (ids.some((id) => !evidenceIds.has(id))) {
+      context.addIssue({ code: "custom", path: ["sharedThemes", index, "evidence"], message: "Inclua evidência de cada vídeo." });
+    }
+  });
 });
 
 export type AnalysisResult = z.infer<typeof analysisResultSchema>;

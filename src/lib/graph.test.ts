@@ -10,5 +10,6 @@ describe("createInsightGraph", () => {
     expect(graph.nodes.some((node) => node.kind === "comment")).toBe(true);
     expect(graph.nodes.filter((node) => node.kind === "shared")).toHaveLength(3);
     expect(graph.edges.length).toBeGreaterThan(graph.nodes.length / 2);
+    expect(graph.nodes.filter((node) => node.kind === "shared").every((node) => node.y >= 190 && node.y <= 580)).toBe(true);
   });
 });

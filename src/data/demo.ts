@@ -88,9 +88,18 @@ export const demoAnalysis: AnalysisResult = {
     },
   ],
   sharedThemes: [
-    { label: "Paciência", description: "Os dois públicos valorizam permanecer no processo antes da recompensa.", videoIds: ["_RvNczunfsQ", "dQw4w9WgXcQ"] },
-    { label: "Foco", description: "Reduzir estímulos e escolhas aparece como condição para concluir.", videoIds: ["_RvNczunfsQ", "dQw4w9WgXcQ"] },
-    { label: "Repetição", description: "O trabalho repetitivo é reinterpretado como vantagem competitiva.", videoIds: ["_RvNczunfsQ", "dQw4w9WgXcQ"] },
+    { label: "Paciência", description: "Os dois públicos valorizam permanecer no processo antes da recompensa.", videoIds: ["_RvNczunfsQ", "dQw4w9WgXcQ"], evidence: [
+      { videoId: "_RvNczunfsQ", author: "@mood55-o5c", text: "Survive the boredom of doing unsexy work every day." },
+      { videoId: "dQw4w9WgXcQ", author: "@slowgrowth", text: "Nothing happened for months, then everything compounded." },
+    ] },
+    { label: "Foco", description: "Reduzir estímulos e escolhas aparece como condição para concluir.", videoIds: ["_RvNczunfsQ", "dQw4w9WgXcQ"], evidence: [
+      { videoId: "_RvNczunfsQ", author: "@Kev.94", text: "Mama was right it is the damn phone." },
+      { videoId: "dQw4w9WgXcQ", author: "@onepath", text: "Choosing one path was the real productivity hack." },
+    ] },
+    { label: "Repetição", description: "O trabalho repetitivo é reinterpretado como vantagem competitiva.", videoIds: ["_RvNczunfsQ", "dQw4w9WgXcQ"], evidence: [
+      { videoId: "_RvNczunfsQ", author: "@sebvitug", text: "Any of them can work, if I just stick with one." },
+      { videoId: "dQw4w9WgXcQ", author: "@maker", text: "The boring reps are finally paying off." },
+    ] },
   ],
   takeaways: [
     "A baixa tolerância ao tédio é a dor mais reconhecida no primeiro público.",

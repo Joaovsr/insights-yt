@@ -12,7 +12,7 @@ const CODEX_TIMEOUT_MS = 240_000;
 function buildPrompt(videoIds: string[]): string {
   const list = videoIds.map((id) => `- ${id}`).join("\n");
   const comparison = videoIds.length === 2
-    ? "Compare os vídeos e preencha sharedThemes com os temas realmente presentes nos dois."
+    ? "Compare os vídeos e preencha sharedThemes com os temas realmente presentes nos dois. Em cada tema compartilhado, inclua evidence com pelo menos um comentário real de cada vídeo."
     : "Como há somente um vídeo, retorne sharedThemes como array vazio.";
 
   return `Você é um analista de audiência do YouTube. Use exclusivamente o MCP youtube já configurado.
@@ -73,14 +73,14 @@ export async function analyzeWithCodex(videoIds: string[]): Promise<AnalysisResu
 
     const timeout = setTimeout(() => {
       child.kill("SIGTERM");
-      finish(new Error("A análise excedeu o limite de 4 minutos."));
+      finish(new CodexRunError("A análise excedeu o limite de 4 minutos.", 504));
     }, CODEX_TIMEOUT_MS);
 
     child.stdout.on("data", (chunk: Buffer) => {
       stdout += chunk.toString();
       if (stdout.length > MAX_OUTPUT_BYTES) {
         child.kill("SIGTERM");
-        finish(new Error("A resposta do Codex excedeu o limite permitido."));
+        finish(new CodexRunError("A resposta do Codex excedeu o limite permitido."));
       }
     });
 
@@ -89,12 +89,16 @@ export async function analyzeWithCodex(videoIds: string[]): Promise<AnalysisResu
     });
 
     child.on("error", (error) => {
-      finish(new Error(`Não foi possível iniciar o Codex: ${error.message}`));
+      console.error("Falha ao iniciar o Codex:", error.message);
+      finish(new CodexRunError("Não foi possível iniciar o Codex local."));
     });
 
     child.on("close", (code) => {
       if (code === 0) finish();
-      else finish(new Error(`Codex encerrou com código ${code}. ${stderr.trim()}`));
+      else {
+        console.error(`Codex encerrou com código ${code}:`, stderr.trim());
+        finish(new CodexRunError("O Codex não conseguiu concluir a análise."));
+      }
     });
 
     child.stdin.end(buildPrompt(videoIds));
@@ -104,7 +108,7 @@ export async function analyzeWithCodex(videoIds: string[]): Promise<AnalysisResu
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new Error("O Codex retornou uma resposta que não é JSON válido.");
+    throw new CodexRunError("O Codex retornou uma resposta inválida.");
   }
 
   const validation = analysisResultSchema.safeParse(parsed);
@@ -113,7 +117,8 @@ export async function analyzeWithCodex(videoIds: string[]): Promise<AnalysisResu
       .slice(0, 4)
       .map((issue) => `${issue.path.join(".") || "resposta"}: ${issue.message}`)
       .join("; ");
-    throw new Error(`O JSON do Codex não corresponde ao contrato: ${details}`);
+    console.error("Resposta do Codex fora do contrato:", details);
+    throw new CodexRunError("A resposta do Codex ficou fora do formato esperado.");
   }
   const result = {
     ...validation.data,
@@ -127,12 +132,23 @@ export async function analyzeWithCodex(videoIds: string[]): Promise<AnalysisResu
         })),
       })),
     })),
+    sharedThemes: validation.data.sharedThemes.map((theme) => ({
+      ...theme,
+      evidence: theme.evidence.map((item) => ({ ...item, text: cleanYouTubeText(item.text) })),
+    })),
   } satisfies AnalysisResult;
   const returnedIds = result.videos.map((video) => video.videoId).sort();
   const requestedIds = [...videoIds].sort();
   if (JSON.stringify(returnedIds) !== JSON.stringify(requestedIds)) {
-    throw new Error("A resposta do Codex não corresponde aos vídeos solicitados.");
+    throw new CodexRunError("A resposta do Codex não corresponde aos vídeos solicitados.");
   }
 
   return result;
+}
+
+export class CodexRunError extends Error {
+  constructor(message: string, public readonly status = 502) {
+    super(message);
+    this.name = "CodexRunError";
+  }
 }

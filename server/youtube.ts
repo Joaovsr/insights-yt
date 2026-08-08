@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const requestSchema = z.object({
-  urls: z.array(z.string().trim().min(1)).min(1).max(2),
+  url: z.string().trim().min(1),
 });
 
 const videoIdSchema = z.string().regex(/^[A-Za-z0-9_-]{11}$/);
@@ -34,17 +34,9 @@ export function extractVideoId(value: string): string | null {
   return candidate && videoIdSchema.safeParse(candidate).success ? candidate : null;
 }
 
-export function parseVideoRequest(input: unknown): string[] {
-  const { urls } = requestSchema.parse(input);
-  const ids = urls.map((url) => {
-    const id = extractVideoId(url);
-    if (!id) throw new Error(`URL do YouTube inválida: ${url}`);
-    return id;
-  });
-
-  if (new Set(ids).size !== ids.length) {
-    throw new Error("Use vídeos diferentes para a comparação.");
-  }
-
-  return ids;
+export function parseVideoRequest(input: unknown): string {
+  const { url } = requestSchema.parse(input);
+  const id = extractVideoId(url);
+  if (!id) throw new Error(`URL do YouTube inválida: ${url}`);
+  return id;
 }

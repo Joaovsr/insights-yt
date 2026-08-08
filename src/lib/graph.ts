@@ -1,6 +1,6 @@
 import type { AnalysisResult, Sentiment } from "./analysis";
 
-export type GraphNodeKind = "video" | "tag" | "comment" | "shared";
+export type GraphNodeKind = "video" | "tag" | "comment";
 
 export type GraphNode = {
   id: string;
@@ -26,10 +26,7 @@ export type GraphEdge = {
 
 export type InsightGraph = { nodes: GraphNode[]; edges: GraphEdge[] };
 
-const palettes = [
-  ["#ff7ca8", "#ff9369", "#be7cff", "#f1c75b", "#64d493", "#e56b74", "#9b8cff"],
-  ["#4fc6e8", "#4f86f7", "#71d6b2", "#88a7ff", "#50b7a4", "#a3c85d", "#6c96ba"],
-];
+const palette = ["#ff7ca8", "#ff9369", "#be7cff", "#f1c75b", "#64d493", "#e56b74", "#9b8cff"];
 
 const sentimentLabel: Record<Sentiment, string> = {
   positive: "Positivo",
@@ -44,14 +41,11 @@ function polar(cx: number, cy: number, radius: number, angle: number) {
 export function createInsightGraph(result: AnalysisResult): InsightGraph {
   const nodes: GraphNode[] = [];
   const edges: GraphEdge[] = [];
-  const centers = result.videos.length === 1
-    ? [{ x: 560, y: 390 }]
-    : [{ x: 330, y: 390 }, { x: 805, y: 390 }];
+  const center = { x: 560, y: 390 };
 
-  result.videos.forEach((video, videoIndex) => {
-    const center = centers[videoIndex];
+  result.videos.forEach((video) => {
     const videoNodeId = `video:${video.videoId}`;
-    const baseColor = videoIndex === 0 ? "#ff7ca8" : "#4fc6e8";
+    const baseColor = "#ff7ca8";
     nodes.push({
       id: videoNodeId,
       kind: "video",
@@ -60,7 +54,7 @@ export function createInsightGraph(result: AnalysisResult): InsightGraph {
       radius: 35,
       color: baseColor,
       label: video.title,
-      eyebrow: `Vídeo ${videoIndex + 1} · ${video.channel}`,
+      eyebrow: `Vídeo · ${video.channel}`,
       description: video.summary,
       meta: [
         `${video.commentCountAnalyzed} comentários analisados`,
@@ -69,12 +63,10 @@ export function createInsightGraph(result: AnalysisResult): InsightGraph {
     });
 
     video.tags.forEach((tag, tagIndex) => {
-      const directionOffset = result.videos.length === 2 ? (videoIndex === 0 ? Math.PI : 0) : 0;
-      const spread = result.videos.length === 2 ? Math.PI * 1.35 : Math.PI * 2;
-      const angle = directionOffset - spread / 2 + (spread * (tagIndex + 0.5)) / video.tags.length;
+      const angle = -Math.PI + (Math.PI * 2 * (tagIndex + 0.5)) / video.tags.length;
       const tagPosition = polar(center.x, center.y, 178 + (tagIndex % 2) * 42, angle);
       const tagNodeId = `tag:${video.videoId}:${tag.id}`;
-      const color = palettes[videoIndex][tagIndex % palettes[videoIndex].length];
+      const color = palette[tagIndex % palette.length];
       nodes.push({
         id: tagNodeId,
         kind: "tag",
@@ -108,28 +100,6 @@ export function createInsightGraph(result: AnalysisResult): InsightGraph {
         });
         edges.push({ id: `${tagNodeId}-${commentNodeId}`, from: tagNodeId, to: commentNodeId, color, strength: "soft" });
       });
-    });
-  });
-
-  result.sharedThemes.forEach((theme, index) => {
-    const id = `shared:${index}`;
-    const interval = result.sharedThemes.length > 1 ? 390 / (result.sharedThemes.length - 1) : 0;
-    const position = { x: 570, y: 190 + index * interval };
-    nodes.push({
-      id,
-      kind: "shared",
-      x: position.x,
-      y: position.y,
-      radius: 13,
-      color: "#f0c75e",
-      label: theme.label,
-      eyebrow: "Tema compartilhado",
-      description: theme.description,
-      meta: ["Presente nos dois vídeos"],
-      evidence: theme.evidence.map((item) => `${item.author}: ${item.text}`),
-    });
-    theme.videoIds.forEach((videoId) => {
-      edges.push({ id: `${id}-${videoId}`, from: id, to: `video:${videoId}`, color: "#f0c75e", strength: "soft" });
     });
   });
 

@@ -9,25 +9,17 @@ const schemaPath = resolve(serverDirectory, "analysis-schema.json");
 const MAX_OUTPUT_BYTES = 2_000_000;
 const CODEX_TIMEOUT_MS = 240_000;
 
-function buildPrompt(videoIds: string[]): string {
-  const list = videoIds.map((id) => `- ${id}`).join("\n");
-  const comparison = videoIds.length === 2
-    ? "Compare os vídeos e preencha sharedThemes com os temas realmente presentes nos dois. Em cada tema compartilhado, inclua evidence com pelo menos um comentário real de cada vídeo."
-    : "Como há somente um vídeo, retorne sharedThemes como array vazio.";
-
+function buildPrompt(videoId: string): string {
   return `Você é um analista de audiência do YouTube. Use exclusivamente o MCP youtube já configurado.
 
-Vídeos:
-${list}
+Vídeo: ${videoId}
 
-Para cada vídeo:
+Para o vídeo:
 1. Use getVideoDetails para título, canal e metadados.
 2. Use getVideoComments com maxResults=100, order=relevance, commentDetail=SNIPPET e maxReplies=0.
 3. Classifique os comentários em 4 a 10 tags temáticas claras em português.
 4. Para cada tag, estime quantos dos comentários consultados pertencem a ela, identifique o sentimento predominante e selecione até 5 comentários representativos. Preserve o texto e autor originais.
 5. Calcule percentuais aproximados de sentimento; positive + neutral + negative deve totalizar 100.
-
-${comparison}
 
 Regras:
 - Não use busca web nem outras fontes.
@@ -39,7 +31,7 @@ Regras:
 - Retorne somente o JSON no schema solicitado.`;
 }
 
-export async function analyzeWithCodex(videoIds: string[]): Promise<AnalysisResult> {
+export async function analyzeWithCodex(videoId: string): Promise<AnalysisResult> {
   const args = [
     "exec",
     "--ephemeral",
@@ -101,7 +93,7 @@ export async function analyzeWithCodex(videoIds: string[]): Promise<AnalysisResu
       }
     });
 
-    child.stdin.end(buildPrompt(videoIds));
+    child.stdin.end(buildPrompt(videoId));
   });
 
   let parsed: unknown;
@@ -132,14 +124,8 @@ export async function analyzeWithCodex(videoIds: string[]): Promise<AnalysisResu
         })),
       })),
     })),
-    sharedThemes: validation.data.sharedThemes.map((theme) => ({
-      ...theme,
-      evidence: theme.evidence.map((item) => ({ ...item, text: cleanYouTubeText(item.text) })),
-    })),
   } satisfies AnalysisResult;
-  const returnedIds = result.videos.map((video) => video.videoId).sort();
-  const requestedIds = [...videoIds].sort();
-  if (JSON.stringify(returnedIds) !== JSON.stringify(requestedIds)) {
+  if (result.videos[0].videoId !== videoId) {
     throw new CodexRunError("A resposta do Codex não corresponde aos vídeos solicitados.");
   }
 

@@ -2,17 +2,18 @@
 
 ## Goal
 
-Turn the comments of one or two YouTube videos into a visual map analyzed by Codex through the locally configured YouTube MCP.
+Turn the comments of one YouTube video into a visual map analyzed by Codex through the locally configured YouTube MCP.
 
 ## Required experience
 
 - Dark interface.
 - The map occupies the main area; video URL controls sit on the right.
-- Accept one YouTube video and optionally a second video for comparison.
+- Accept exactly one YouTube video per analysis.
 - Categorize the audience conversation into thematic tags.
 - Show relationships between video, tags, and representative comments.
-- When two videos are analyzed, highlight themes shared by both audiences.
 - Let the user inspect a node to understand its meaning and evidence.
+- Persist recent searches and their analysis in browser localStorage.
+- Keep the interface minimal: no demo, status badge, comparison controls, metrics card, legend, or footer labels.
 
 ## Integration constraints
 
@@ -26,5 +27,5 @@ Turn the comments of one or two YouTube videos into a visual map analyzed by Cod
 
 - TypeScript typecheck and automated tests pass.
 - Production frontend build succeeds.
-- API rejects malformed and duplicate YouTube URLs.
+- API rejects malformed input and multiple-video payloads.
 - A real video can complete the API → Codex → MCP → structured JSON flow.

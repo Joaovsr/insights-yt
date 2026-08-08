@@ -19,16 +19,12 @@ describe("extractVideoId", () => {
 });
 
 describe("parseVideoRequest", () => {
-  it("accepts one or two distinct videos", () => {
-    expect(parseVideoRequest({ urls: ["https://youtu.be/_RvNczunfsQ", "https://youtu.be/dQw4w9WgXcQ"] })).toEqual([
-      "_RvNczunfsQ",
-      "dQw4w9WgXcQ",
-    ]);
+  it("accepts one YouTube video", () => {
+    expect(parseVideoRequest({ url: "https://youtu.be/_RvNczunfsQ" })).toBe("_RvNczunfsQ");
   });
 
-  it("rejects duplicated videos", () => {
-    expect(() => parseVideoRequest({ urls: ["https://youtu.be/_RvNczunfsQ", "https://youtube.com/watch?v=_RvNczunfsQ"] })).toThrow(
-      "Use vídeos diferentes",
-    );
+  it("rejects arrays and malformed URLs", () => {
+    expect(() => parseVideoRequest({ urls: ["https://youtu.be/_RvNczunfsQ"] })).toThrow();
+    expect(() => parseVideoRequest({ url: "https://example.com/video" })).toThrow("URL do YouTube inválida");
   });
 });

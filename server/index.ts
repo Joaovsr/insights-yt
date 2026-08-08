@@ -23,9 +23,9 @@ app.post("/api/analyze", async (request, response) => {
   }
 
   try {
-    const videoIds = parseVideoRequest(request.body);
+    const videoId = parseVideoRequest(request.body);
     analysisInFlight = true;
-    const result = await analyzeWithCodex(videoIds);
+    const result = await analyzeWithCodex(videoId);
     response.json(result);
   } catch (error) {
     const message = error instanceof ZodError

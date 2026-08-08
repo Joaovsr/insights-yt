@@ -101,12 +101,6 @@ export function InsightGraph({ result, selectedId, onSelect }: Props) {
         <button type="button" onClick={() => changeZoom(0.12)} aria-label="Aumentar zoom">+</button>
       </div>
 
-      <div className="graph-legend">
-        <span><i className="legend-dot legend-dot--video" /> vídeo</span>
-        <span><i className="legend-dot legend-dot--tag" /> tag</span>
-        <span><i className="legend-dot legend-dot--comment" /> comentário</span>
-        {result.videos.length === 2 && <span><i className="legend-dot legend-dot--shared" /> conexão</span>}
-      </div>
     </div>
   );
 }

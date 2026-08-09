@@ -37,15 +37,16 @@
                 "commentCount": { "type": "integer" },
                 "sentiment": { "type": "string", "enum": ["positive", "neutral", "negative"] },
                 "keywords": { "type": "array", "maxItems": 6, "items": { "type": "string", "maxLength": 30 } },
-                "examples": {
+                "comments": {
                   "type": "array",
-                  "maxItems": 5,
+                  "minItems": 1,
+                  "maxItems": 100,
                   "items": {
                     "type": "object",
                     "properties": {
                       "id": { "type": "string" },
                       "author": { "type": "string" },
-                      "text": { "type": "string", "maxLength": 280 },
+                      "text": { "type": "string" },
                       "likes": { "type": "integer" }
                     },
                     "required": ["id", "author", "text", "likes"],
@@ -53,7 +54,7 @@
                   }
                 }
               },
-              "required": ["id", "label", "description", "commentCount", "sentiment", "keywords", "examples"],
+              "required": ["id", "label", "description", "commentCount", "sentiment", "keywords", "comments"],
               "additionalProperties": false
             }
           }

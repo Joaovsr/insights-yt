@@ -31,15 +31,7 @@ function normalizeTag(value: unknown): unknown {
     keywords: Array.isArray(value.keywords)
       ? value.keywords.map((keyword) => compact(keyword, 30))
       : value.keywords,
-    examples: Array.isArray(value.examples)
-      ? value.examples.map(normalizeExample)
-      : value.examples,
   };
-}
-
-function normalizeExample(value: unknown): unknown {
-  if (!isRecord(value)) return value;
-  return { ...value, text: compact(value.text, 280) };
 }
 
 function compact(value: unknown, maxLength: number): unknown {

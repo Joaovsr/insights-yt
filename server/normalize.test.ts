@@ -17,4 +17,17 @@ describe("normalizeCodexPayload", () => {
     expect(validation.data.video.tags[1].description.length).toBeLessThanOrEqual(180);
     expect(validation.data.video.tags[1].description.endsWith("…")).toBe(true);
   });
+
+  it("preserves the complete text of long comments", () => {
+    const payload = structuredClone(analysisFixture);
+    const longComment = "Comentário detalhado. ".repeat(80);
+    payload.video.tags[0].comments[0].text = longComment;
+
+    const normalized = normalizeCodexPayload(payload);
+    const validation = analysisResultSchema.safeParse(normalized);
+
+    expect(validation.success).toBe(true);
+    if (!validation.success) return;
+    expect(validation.data.video.tags[0].comments[0].text).toBe(longComment);
+  });
 });

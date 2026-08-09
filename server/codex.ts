@@ -18,8 +18,8 @@ Vídeo: ${videoId}
 Para o vídeo:
 1. Use getVideoDetails para título, canal e metadados.
 2. Use getVideoComments com maxResults=100, order=relevance, commentDetail=SNIPPET e maxReplies=0.
-3. Classifique os comentários em 4 a 10 tags temáticas claras em português.
-4. Para cada tag, estime quantos dos comentários consultados pertencem a ela, identifique o sentimento predominante e selecione até 5 comentários representativos. Preserve o texto e autor originais.
+3. Classifique TODOS os comentários retornados em 4 a 10 tags temáticas claras em português. Cada comentário deve pertencer a exatamente uma tag principal; não repita o mesmo comentário em tags diferentes.
+4. Em cada tag, inclua em comments TODOS os comentários atribuídos a ela, preservando id, texto e autor originais. commentCount deve ser exatamente o tamanho de comments, e commentCountAnalyzed deve ser a soma dos comments de todas as tags.
 5. Calcule percentuais aproximados de sentimento; positive + neutral + negative deve totalizar 100.
 
 Regras:
@@ -119,9 +119,9 @@ export async function analyzeWithCodex(videoId: string): Promise<AnalysisResult>
       ...validation.data.video,
       tags: validation.data.video.tags.map((tag) => ({
         ...tag,
-        examples: tag.examples.map((example) => ({
-          ...example,
-          text: cleanYouTubeText(example.text),
+        comments: tag.comments.map((comment) => ({
+          ...comment,
+          text: cleanYouTubeText(comment.text),
         })),
       })),
     },

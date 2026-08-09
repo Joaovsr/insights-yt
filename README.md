@@ -5,7 +5,7 @@ Aplicação local que usa o Codex e o MCP do YouTube já configurado para transf
 ## Como funciona
 
 ```text
-Browser → API local → codex exec → MCP youtube → JSON estruturado → mapa SVG
+Browser → API local → codex exec → MCP youtube → JSON estruturado → grafo interativo em Canvas
 ```
 
 O servidor não recebe prompts livres. Ele valida uma URL do YouTube, executa o Codex em sandbox somente leitura e valida novamente a resposta antes de enviá-la ao navegador.
@@ -38,5 +38,6 @@ npm run build
 
 - Um vídeo por análise.
 - Até 100 comentários relevantes consultados.
-- O mapa recebe temas agregados e comentários representativos para reduzir tokens.
+- Cada comentário analisado aparece uma vez, ligado à sua tag temática principal.
+- O tamanho e o brilho das tags acompanham o volume real de comentários.
 - A análise real depende da autenticação do Codex e do MCP `youtube` no computador onde o servidor roda.

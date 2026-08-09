@@ -2,10 +2,10 @@ import { z } from "zod";
 
 export const sentimentSchema = z.enum(["positive", "neutral", "negative"]);
 
-export const commentExampleSchema = z.object({
+export const analyzedCommentSchema = z.object({
   id: z.string().min(1),
   author: z.string().min(1),
-  text: z.string().min(1).max(280),
+  text: z.string().min(1),
   likes: z.number().int().nonnegative(),
 });
 
@@ -16,7 +16,7 @@ export const tagSchema = z.object({
   commentCount: z.number().int().nonnegative(),
   sentiment: sentimentSchema,
   keywords: z.array(z.string().min(1).max(30)).max(6),
-  examples: z.array(commentExampleSchema).max(5),
+  comments: z.array(analyzedCommentSchema).min(1).max(100),
 });
 
 export const videoAnalysisSchema = z.object({
@@ -47,6 +47,26 @@ export const videoAnalysisSchema = z.object({
   if (new Set(tagIds).size !== tagIds.length) {
     context.addIssue({ code: "custom", path: ["tags"], message: "IDs de tags devem ser únicos." });
   }
+  const commentIds = video.tags.flatMap((tag) => tag.comments.map((comment) => comment.id));
+  if (new Set(commentIds).size !== commentIds.length) {
+    context.addIssue({ code: "custom", path: ["tags"], message: "Cada comentário deve pertencer a uma única tag." });
+  }
+  video.tags.forEach((tag, index) => {
+    if (tag.commentCount !== tag.comments.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["tags", index, "commentCount"],
+        message: "A contagem da tag deve corresponder aos comentários incluídos.",
+      });
+    }
+  });
+  if (commentIds.length !== video.commentCountAnalyzed) {
+    context.addIssue({
+      code: "custom",
+      path: ["commentCountAnalyzed"],
+      message: "Todos os comentários analisados devem estar presentes em uma tag.",
+    });
+  }
 });
 
 export const analysisResultSchema = z.object({
@@ -59,5 +79,5 @@ export const analysisResultSchema = z.object({
 export type AnalysisResult = z.infer<typeof analysisResultSchema>;
 export type VideoAnalysis = z.infer<typeof videoAnalysisSchema>;
 export type TagAnalysis = z.infer<typeof tagSchema>;
-export type CommentExample = z.infer<typeof commentExampleSchema>;
+export type AnalyzedComment = z.infer<typeof analyzedCommentSchema>;
 export type Sentiment = z.infer<typeof sentimentSchema>;

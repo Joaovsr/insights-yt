@@ -10,7 +10,8 @@ Turn the comments of one YouTube video into a visual map analyzed by Codex throu
 - The map occupies the main area; video URL controls sit on the right.
 - Accept exactly one YouTube video per analysis.
 - Categorize the audience conversation into thematic tags.
-- Show relationships between video, tags, and representative comments.
+- Show every analyzed comment once, connected to its primary thematic tag.
+- Make high-volume tags visually stronger and support hover, drag, pan, and zoom exploration.
 - Let the user inspect a node to understand its meaning and evidence.
 - Persist recent searches and their analysis in browser localStorage.
 - Keep the interface minimal: no demo, status badge, comparison controls, metrics card, legend, or footer labels.
@@ -21,7 +22,7 @@ Turn the comments of one YouTube video into a visual map analyzed by Codex throu
 - Do not expose credentials to the browser.
 - Accept no free-form agent prompt from the browser.
 - Validate both request and model response.
-- Keep the returned analysis compact despite reading up to 100 comments per video.
+- Keep descriptions compact while preserving every analyzed comment in the graph payload.
 
 ## Acceptance checks
 

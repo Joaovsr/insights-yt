@@ -1,31 +1,35 @@
 # YT Signals
 
-Aplicação local que usa o Codex e o MCP do YouTube já configurado para transformar os comentários de um vídeo em um mapa visual de temas e sentimentos.
+Frontend React que transforma os comentários de um vídeo do YouTube em um mapa visual de temas e sentimentos.
 
 ## Como funciona
 
 ```text
-Browser → API local → codex exec → MCP youtube → JSON estruturado → grafo interativo em Canvas
+Browser → insights-yt-api → YouTube Data API → OpenAI Responses API → JSON validado → grafo interativo
 ```
 
-O servidor não recebe prompts livres. Ele valida uma URL do YouTube, executa o Codex em sandbox somente leitura e valida novamente a resposta antes de enviá-la ao navegador.
+O navegador extrai o ID de uma URL válida do YouTube e chama a API Go com `{ "maxComments": 100 }`. A resposta é validada com Zod antes de atualizar a tela ou o histórico em `localStorage`. Nenhuma chave ou prompt livre chega ao browser.
 
-As análises recentes são mantidas no `localStorage` do navegador e podem ser reabertas sem uma nova chamada ao Codex.
+## Desenvolvimento local
 
-## Executar
-
-Pré-requisitos:
-
-- Node.js 20+
-- Codex CLI autenticado
-- MCP `youtube` habilitado no Codex
+Requisitos: Node.js 20+ e a aplicação `insights-yt-api` disponível em `127.0.0.1:8080`.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Abra `http://127.0.0.1:5173` e envie a URL de um vídeo.
+Abra `http://127.0.0.1:5173`. O Vite encaminha `/api/v1` para a API Go, evitando diferenças de CORS no desenvolvimento.
+
+## Produção
+
+Defina a URL pública da API no build do frontend, sem barra final:
+
+```bash
+VITE_API_BASE_URL=https://api.example.com npm run build
+```
+
+A API deve permitir exatamente a origem pública do frontend em `CORS_ALLOWED_ORIGIN`.
 
 ## Verificações
 
@@ -37,7 +41,7 @@ npm run build
 ## Limites atuais
 
 - Um vídeo por análise.
-- Até 100 comentários relevantes consultados.
+- Até 100 comentários relevantes por mapa.
 - Cada comentário analisado aparece uma vez, ligado à sua tag temática principal.
 - O tamanho e o brilho das tags acompanham o volume real de comentários.
-- A análise real depende da autenticação do Codex e do MCP `youtube` no computador onde o servidor roda.
+- Uma análise pode levar até três minutos; o frontend propaga cancelamento e aplica timeout.

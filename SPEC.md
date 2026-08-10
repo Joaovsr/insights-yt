@@ -2,7 +2,7 @@
 
 ## Goal
 
-Turn the comments of one YouTube video into a visual map analyzed by Codex through the locally configured YouTube MCP.
+Turn the comments of one YouTube video into a visual map analyzed through the dedicated Go API.
 
 ## Required experience
 
@@ -18,15 +18,15 @@ Turn the comments of one YouTube video into a visual map analyzed by Codex throu
 
 ## Integration constraints
 
-- Reuse the user's authenticated Codex CLI and configured `youtube` MCP.
+- Call the Go API from the browser through the Vite proxy in development or `VITE_API_BASE_URL` in production.
 - Do not expose credentials to the browser.
-- Accept no free-form agent prompt from the browser.
-- Validate both request and model response.
+- Send only a validated video ID and the fixed comment limit; accept no free-form model prompt from the browser.
+- Validate the API response with the frontend schema before rendering or persisting it.
 - Keep descriptions compact while preserving every analyzed comment in the graph payload.
 
 ## Acceptance checks
 
 - TypeScript typecheck and automated tests pass.
 - Production frontend build succeeds.
-- API rejects malformed input and multiple-video payloads.
-- A real video can complete the API → Codex → MCP → structured JSON flow.
+- API rejects malformed video IDs and request bodies.
+- A real video can complete the Browser → Go API → YouTube → OpenAI → structured JSON flow.

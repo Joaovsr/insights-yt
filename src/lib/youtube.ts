@@ -1,17 +1,9 @@
-import { z } from "zod";
-
-const requestSchema = z.object({
-  url: z.string().trim().min(1),
-}).strict();
-
-const videoIdSchema = z.string().regex(/^[A-Za-z0-9_-]{11}$/);
+const videoIdPattern = /^[A-Za-z0-9_-]{11}$/;
 
 export function extractVideoId(value: string): string | null {
-  const trimmed = value.trim();
-
   let url: URL;
   try {
-    url = new URL(trimmed);
+    url = new URL(value.trim());
   } catch {
     return null;
   }
@@ -31,12 +23,5 @@ export function extractVideoId(value: string): string | null {
     }
   }
 
-  return candidate && videoIdSchema.safeParse(candidate).success ? candidate : null;
-}
-
-export function parseVideoRequest(input: unknown): string {
-  const { url } = requestSchema.parse(input);
-  const id = extractVideoId(url);
-  if (!id) throw new Error(`URL do YouTube inválida: ${url}`);
-  return id;
+  return candidate && videoIdPattern.test(candidate) ? candidate : null;
 }

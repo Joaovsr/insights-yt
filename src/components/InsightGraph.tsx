@@ -30,6 +30,10 @@ export function InsightGraph({ result, selectedId, onSelect }: Props) {
   const graphRef = useRef<ForceGraphMethods<GraphNode, GraphEdge> | undefined>(undefined);
   const fittedRef = useRef(false);
   const graph = useMemo(() => createInsightGraph(result), [result]);
+  const graphData = useMemo(
+    () => ({ nodes: graph.nodes, links: graph.edges }),
+    [graph],
+  );
   const [size, setSize] = useState<Size>({ width: 900, height: 620 });
   const [hoveredId, setHoveredId] = useState<string>();
   const [zoom, setZoom] = useState(1);
@@ -134,7 +138,7 @@ export function InsightGraph({ result, selectedId, onSelect }: Props) {
         ref={graphRef}
         width={size.width}
         height={size.height}
-        graphData={{ nodes: graph.nodes, links: graph.edges }}
+        graphData={graphData}
         backgroundColor="rgba(0,0,0,0)"
         dagMode="radialout"
         dagLevelDistance={115}
@@ -156,7 +160,7 @@ export function InsightGraph({ result, selectedId, onSelect }: Props) {
         enableNodeDrag
         onNodeHover={(node) => setHoveredId(node?.id)}
         onNodeClick={(node) => onSelect(node)}
-        onZoom={({ k }) => setZoom(k)}
+        onZoomEnd={({ k }) => setZoom(k)}
         onEngineStop={() => {
           if (fittedRef.current) return;
           fittedRef.current = true;

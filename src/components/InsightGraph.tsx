@@ -67,8 +67,7 @@ export function InsightGraph({ result, selectedId, onSelect }: Props) {
   const paintNode = useCallback((node: GraphNode, context: CanvasRenderingContext2D, globalScale: number) => {
     const active = node.id === activeId;
     const related = !relatedIds || relatedIds.has(node.id);
-    const pulse = active ? 1 + Math.sin(Date.now() / 170) * 0.08 : 1;
-    const radius = node.radius * pulse;
+    const radius = node.radius;
 
     context.save();
     context.globalAlpha = related ? 1 : 0.14;
@@ -76,7 +75,7 @@ export function InsightGraph({ result, selectedId, onSelect }: Props) {
     context.arc(node.x ?? 0, node.y ?? 0, radius, 0, Math.PI * 2);
     context.fillStyle = node.color;
     context.shadowColor = node.color;
-    context.shadowBlur = active ? 24 : node.kind === "tag" ? 10 : 2;
+    context.shadowBlur = active ? 18 : node.kind === "tag" ? 10 : 2;
     context.fill();
 
     context.shadowBlur = 0;
@@ -141,7 +140,7 @@ export function InsightGraph({ result, selectedId, onSelect }: Props) {
         dagLevelDistance={115}
         warmupTicks={90}
         cooldownTicks={180}
-        autoPauseRedraw={!activeId}
+        autoPauseRedraw
         nodeCanvasObjectMode={() => "replace"}
         nodeCanvasObject={paintNode}
         nodePointerAreaPaint={paintPointerArea}
@@ -152,15 +151,9 @@ export function InsightGraph({ result, selectedId, onSelect }: Props) {
           return connected ? edge.color : "rgba(70,76,86,0.18)";
         }}
         linkWidth={(edge) => edge.strength === "strong" ? 1.15 : 0.42}
-        linkDirectionalParticles={(edge) => {
-          if (!activeId) return 0;
-          return endpointId(edge.source) === activeId || endpointId(edge.target) === activeId ? 1 : 0;
-        }}
-        linkDirectionalParticleWidth={1.8}
-        linkDirectionalParticleSpeed={0.004}
-        linkDirectionalParticleColor={(edge) => edge.color}
         minZoom={0.3}
         maxZoom={3.2}
+        enableNodeDrag
         onNodeHover={(node) => setHoveredId(node?.id)}
         onNodeClick={(node) => onSelect(node)}
         onZoom={({ k }) => setZoom(k)}

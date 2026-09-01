@@ -25,6 +25,15 @@ describe("analysisResultSchema", () => {
     expect(analysisResultSchema.safeParse(analysisFixture).success).toBe(true);
   });
 
+  it("accepts fewer classified comments than the requested maximum", () => {
+    const input = structuredClone(analysisFixture);
+    input.video.tags[3].comments.splice(-2);
+    input.video.tags[3].commentCount -= 2;
+    input.video.commentCountAnalyzed = 98;
+
+    expect(analysisResultSchema.safeParse(input).success).toBe(true);
+  });
+
   it("rejects sentiment percentages that do not total 100", () => {
     const input = structuredClone(analysisFixture);
     input.video.sentiment = { positive: 50, neutral: 20, negative: 5 };

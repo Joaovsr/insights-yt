@@ -1,7 +1,7 @@
 import { analysisResultSchema, type AnalysisResult } from "./analysis";
 import { extractVideoId } from "./youtube";
 
-const DEFAULT_TIMEOUT_MS = 180_000;
+const DEFAULT_TIMEOUT_MS = 390_000;
 
 type AnalyzeVideoOptions = {
   baseUrl?: string;

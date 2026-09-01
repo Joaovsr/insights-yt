@@ -171,12 +171,12 @@ export default function App() {
               <h3>{selected.label}</h3>
               <p>{selected.description}</p>
               <div className="meta-chips">
-                {selected.meta.map((item) => <span key={item}>{item}</span>)}
+                {selected.meta.map((item, index) => <span key={`${index}:${item}`}>{item}</span>)}
               </div>
               {selected.evidence && selected.evidence.length > 0 && (
                 <div className="evidence-list">
                   <p className="kicker">EVIDÊNCIAS</p>
-                  {selected.evidence.slice(0, 3).map((item) => <blockquote key={item}>{item}</blockquote>)}
+                  {selected.evidence.map((item, index) => <blockquote key={`${index}:${item}`}>{item}</blockquote>)}
                 </div>
               )}
             </section>
@@ -184,7 +184,7 @@ export default function App() {
             <section className="takeaways">
               <p className="kicker">PRINCIPAIS SINAIS</p>
               <ol>
-                {result.takeaways.slice(0, 3).map((takeaway) => <li key={takeaway}>{takeaway}</li>)}
+                {result.takeaways.slice(0, 3).map((takeaway, index) => <li key={`${index}:${takeaway}`}>{takeaway}</li>)}
               </ol>
             </section>
           ) : null}

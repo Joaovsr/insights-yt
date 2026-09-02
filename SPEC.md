@@ -2,7 +2,7 @@
 
 ## Goal
 
-Turn the comments of one YouTube video into a visual map analyzed through the dedicated Go API.
+Turn the comments of one YouTube video into a visual map analyzed by the Node backend bundled with this application.
 
 ## Required experience
 
@@ -18,7 +18,7 @@ Turn the comments of one YouTube video into a visual map analyzed through the de
 
 ## Integration constraints
 
-- Call the Go API from the browser through the Vite proxy in development or `VITE_API_BASE_URL` in production.
+- Keep frontend and backend in this project with one `package.json` and serve both from the same origin.
 - Do not expose credentials to the browser.
 - Send only a validated video ID and the fixed comment limit; accept no free-form model prompt from the browser.
 - Validate the API response with the frontend schema before rendering or persisting it.
@@ -29,4 +29,4 @@ Turn the comments of one YouTube video into a visual map analyzed through the de
 - TypeScript typecheck and automated tests pass.
 - Production frontend build succeeds.
 - API rejects malformed video IDs and request bodies.
-- A real video can complete the Browser → Go API → YouTube → OpenAI → structured JSON flow.
+- A real video can complete the Browser → Node → YouTube → OpenAI → structured JSON flow.

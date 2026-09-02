@@ -79,7 +79,10 @@ export function createInsightGraph(result: AnalysisResult): InsightGraph {
       label: tag.label,
       eyebrow: `Tag · ${sentimentLabel[tag.sentiment]}`,
       description: tag.description,
-      meta: [`${tag.commentCount} comentários`, tag.keywords.join(" · ")],
+      meta: [
+        `${tag.commentCount} comentários`,
+        ...(tag.keywords.length > 0 ? [tag.keywords.join(" · ")] : []),
+      ],
       evidence: tag.comments.map((comment) => `${comment.author}: ${comment.text}`),
       commentCount: tag.commentCount,
     });

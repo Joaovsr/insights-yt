@@ -1,30 +1,31 @@
 {
-  "name": "insights-yt-web",
+  "name": "insights-yt",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k -n api,web -c magenta,cyan \"tsx watch server/index.ts\" \"vite\"",
+    "dev": "vite",
     "build": "tsc -b && vite build",
-    "start": "tsx server/index.ts",
+    "start": "node server/index.js",
     "test": "vitest run",
     "check": "tsc -b && vitest run"
   },
   "dependencies": {
-    "express": "^5.1.0",
+    "dotenv": "^17.4.2",
+    "openai": "^7.9.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-force-graph-2d": "^1.29.1",
     "zod": "^4.0.17"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.6",
     "@types/node": "^24.2.1",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",
-    "concurrently": "^9.2.0",
-    "tsx": "^4.20.4",
+    "jsdom": "^26.1.0",
     "typescript": "~5.9.2",
     "vite": "^7.1.2",
     "vitest": "^3.2.4"

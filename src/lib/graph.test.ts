@@ -17,4 +17,14 @@ describe("createInsightGraph", () => {
     expect(tags[3].radius).toBeGreaterThan(tags[0].radius);
     expect(tags[3].commentCount).toBe(28);
   });
+
+  it("does not create an empty metadata chip when a topic has no keywords", () => {
+    const input = structuredClone(analysisFixture);
+    input.video.tags[0].keywords = [];
+
+    const graph = createInsightGraph(input);
+    const tag = graph.nodes.find((node) => node.kind === "tag" && node.label === "Tema 1");
+
+    expect(tag?.meta).toEqual(["22 comentários"]);
+  });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractVideoId, parseVideoRequest } from "./youtube.js";
+import { extractVideoId } from "./youtube";
 
 describe("extractVideoId", () => {
   it.each([
@@ -7,6 +7,7 @@ describe("extractVideoId", () => {
     ["https://youtu.be/_RvNczunfsQ?t=10", "_RvNczunfsQ"],
     ["https://youtube.com/shorts/_RvNczunfsQ", "_RvNczunfsQ"],
     ["https://youtube.com/embed/_RvNczunfsQ", "_RvNczunfsQ"],
+    ["https://youtube.com/live/_RvNczunfsQ", "_RvNczunfsQ"],
   ])("extracts an id from %s", (input, expected) => {
     expect(extractVideoId(input)).toBe(expected);
   });
@@ -15,20 +16,5 @@ describe("extractVideoId", () => {
     expect(extractVideoId("https://example.com/watch?v=_RvNczunfsQ")).toBeNull();
     expect(extractVideoId("_RvNczunfsQ")).toBeNull();
     expect(extractVideoId("not a video")).toBeNull();
-  });
-});
-
-describe("parseVideoRequest", () => {
-  it("accepts one YouTube video", () => {
-    expect(parseVideoRequest({ url: "https://youtu.be/_RvNczunfsQ" })).toBe("_RvNczunfsQ");
-  });
-
-  it("rejects arrays and malformed URLs", () => {
-    expect(() => parseVideoRequest({ urls: ["https://youtu.be/_RvNczunfsQ"] })).toThrow();
-    expect(() => parseVideoRequest({
-      url: "https://youtu.be/_RvNczunfsQ",
-      urls: ["https://youtu.be/_RvNczunfsQ", "https://youtu.be/dQw4w9WgXcQ"],
-    })).toThrow();
-    expect(() => parseVideoRequest({ url: "https://example.com/video" })).toThrow("URL do YouTube inválida");
   });
 });

@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { InsightGraph } from "./components/InsightGraph";
-import { analysisResultSchema, type AnalysisResult } from "./lib/analysis";
+import { analyzeVideo } from "./lib/api";
+import type { AnalysisResult } from "./lib/analysis";
 import type { GraphNode } from "./lib/graph";
 import {
   clearSearchHistory,
@@ -35,6 +36,13 @@ export default function App() {
   const [selected, setSelected] = useState<GraphNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const activeRequest = useRef<AbortController | null>(null);
+
+  useEffect(() => () => {
+    const request = activeRequest.current;
+    activeRequest.current = null;
+    request?.abort();
+  }, []);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -46,32 +54,31 @@ export default function App() {
       return;
     }
 
+    activeRequest.current?.abort();
+    const controller = new AbortController();
+    activeRequest.current = controller;
     setLoading(true);
     try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: submittedUrl }),
-      });
-      const payload: unknown = await response.json();
-      if (!response.ok) {
-        const message = typeof payload === "object" && payload && "error" in payload
-          ? String(payload.error)
-          : "Não foi possível concluir a análise.";
-        throw new Error(message);
-      }
-
-      const analysis = analysisResultSchema.parse(payload);
+      const analysis = await analyzeVideo(submittedUrl, controller.signal);
       setResult(analysis);
       setHistory(rememberSearch(submittedUrl, analysis));
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Falha inesperada ao analisar o vídeo.");
+      if (activeRequest.current === controller) {
+        setError(caught instanceof Error ? caught.message : "Falha inesperada ao analisar o vídeo.");
+      }
     } finally {
-      setLoading(false);
+      if (activeRequest.current === controller) {
+        activeRequest.current = null;
+        setLoading(false);
+      }
     }
   };
 
   const openHistoryItem = (item: SearchHistoryItem) => {
+    const request = activeRequest.current;
+    activeRequest.current = null;
+    request?.abort();
+    setLoading(false);
     setUrl(item.url);
     setResult(item.result);
     setSelected(null);
@@ -120,7 +127,7 @@ export default function App() {
               <div className="loading-layer" role="status">
                 <div className="radar-loader"><span /><span /><i /></div>
                 <strong>Analisando comentários</strong>
-                <span>O Codex está organizando os principais temas da audiência.</span>
+                <span>A API está organizando os principais temas da audiência.</span>
               </div>
             )}
           </div>
@@ -164,12 +171,12 @@ export default function App() {
               <h3>{selected.label}</h3>
               <p>{selected.description}</p>
               <div className="meta-chips">
-                {selected.meta.map((item) => <span key={item}>{item}</span>)}
+                {selected.meta.map((item, index) => <span key={`${index}:${item}`}>{item}</span>)}
               </div>
               {selected.evidence && selected.evidence.length > 0 && (
                 <div className="evidence-list">
                   <p className="kicker">EVIDÊNCIAS</p>
-                  {selected.evidence.slice(0, 3).map((item) => <blockquote key={item}>{item}</blockquote>)}
+                  {selected.evidence.map((item, index) => <blockquote key={`${index}:${item}`}>{item}</blockquote>)}
                 </div>
               )}
             </section>
@@ -177,7 +184,7 @@ export default function App() {
             <section className="takeaways">
               <p className="kicker">PRINCIPAIS SINAIS</p>
               <ol>
-                {result.takeaways.slice(0, 3).map((takeaway) => <li key={takeaway}>{takeaway}</li>)}
+                {result.takeaways.slice(0, 3).map((takeaway, index) => <li key={`${index}:${takeaway}`}>{takeaway}</li>)}
               </ol>
             </section>
           ) : null}

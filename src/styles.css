@@ -188,6 +188,14 @@ h1 { margin-bottom: 8px; max-width: 760px; font-size: clamp(25px, 2.5vw, 36px); 
 .recent-list span { font-size: 11px; }
 .recent-list small { margin-top: 3px; color: #606873; font-size: 9px; }
 
+@media (min-width: 981px) {
+  .app-shell { height: 100vh; }
+  .workspace { height: calc(100vh - 68px); min-height: 0; }
+  .canvas-panel { min-height: 0; }
+  .graph-stage { min-height: 0; }
+  .control-panel { height: 100%; min-height: 0; overscroll-behavior: contain; }
+}
+
 @media (max-width: 980px) {
   .workspace { grid-template-columns: 1fr; }
   .canvas-panel { min-height: 760px; border-right: 0; }

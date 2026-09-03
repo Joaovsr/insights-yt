@@ -14,7 +14,7 @@ export default defineConfig({
 
 function analysisApi(): Plugin {
   return {
-    name: "insights-yt-analysis-api",
+    name: "yt-signals-analysis-api",
     apply: "serve",
     configureServer(server) {
       const app = createApp({ analysisService: createServiceFromEnv() });

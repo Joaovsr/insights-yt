@@ -24,7 +24,7 @@ const server = createServer((request, response) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`insights-yt listening on http://${host}:${port}`);
+  console.log(`yt-signals listening on http://${host}:${port}`);
 });
 
 for (const signal of ["SIGINT", "SIGTERM"]) {

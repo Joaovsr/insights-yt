@@ -8,7 +8,7 @@ export function createApp({ analysisService, logger = console } = {}) {
     const url = new URL(request.url ?? "/", "http://localhost");
 
     if (request.method === "GET" && url.pathname === "/health") {
-      writeJson(response, 200, { name: "insights-yt", status: "ok" });
+      writeJson(response, 200, { name: "yt-signals", status: "ok" });
       return;
     }
 

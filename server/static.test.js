@@ -15,7 +15,7 @@ afterEach(async () => {
 
 describe("production static handler", () => {
   it("serves assets and falls back to the SPA entry point", async () => {
-    const root = await mkdtemp(join(tmpdir(), "insights-yt-static-"));
+    const root = await mkdtemp(join(tmpdir(), "yt-signals-static-"));
     directories.push(root);
     await writeFile(join(root, "index.html"), "<main>app</main>");
     await writeFile(join(root, "app.js"), "console.log('app')");
@@ -31,7 +31,7 @@ describe("production static handler", () => {
   });
 
   it("does not use the SPA fallback for missing assets", async () => {
-    const root = await mkdtemp(join(tmpdir(), "insights-yt-static-"));
+    const root = await mkdtemp(join(tmpdir(), "yt-signals-static-"));
     directories.push(root);
     await writeFile(join(root, "index.html"), "app");
 
